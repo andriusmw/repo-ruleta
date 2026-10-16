@@ -22,25 +22,22 @@ function helpPanel(){
 }
 
 function checkBet(){
-    # receive even_odd , initial_bet 
+    # receive even_odd , initial_bet , evenOddEvaluation
     local even_odd=$1
-    local initial_bet=$2
+    local Linitial_bet=$2
+    local evenOddEvaluation=$3
 
-    if [ "$even_odd" == "Even" ]; then
+    if [ "$even_odd" == "$evenOddEvaluation" ]; then
+    # checks if our bet is the same as the evenOddEvaluation value
         echo -e "\n Congratulations, you win! "
-        reward=$(($initial_bet*2))
+        reward=$(($Linitial_bet*2))
         money=$(($money+$reward))
         echo -e "\n Your reward is: $reward , your actual money is: $money "
-        echo -ne "\n Play again? (YES/NO) -->" && read answer
-
-            if [ "$answer" == "YES" ]; then
-                martingala
-            else
-                echo -e "\n Thanks for playing"
-                exit
-            fi
+        initial_bet=$backup_bet
+        
     else
         echo -e "\n You Loose..."
+        initial_bet=$((Linitial_bet*2))
     fi
 
 }
@@ -55,6 +52,7 @@ function martingala(){
     echo -ne "\n [?] Select type of bet: (Even/Odd) -->" && read even_odd
 
     echo -e "\n Playing with initial bet: $initial_bet and selecting: $even_odd"
+    backup_bet=$initial_bet
 
     while true; do
         money=$(($money-$initial_bet))
@@ -65,13 +63,19 @@ function martingala(){
         echo -e "\n [-] Number: $random_number"
             if [ $random_number == "0" ]; then
                 echo -e " [-] Number is : $random_number the House wins..."
+                initial_bet=$((initial_bet*2))
             elif [ "$(($random_number % 2))" -eq 0 ]; then
-                # checks if it is even or odd
+                # checks if the number is even 
                 echo -e " [-] the number is Even"
-                checkBet "$even_odd" "$initial_bet"
+                evenOddEvaluation="Even"
+                checkBet "$even_odd" "$initial_bet" "$evenOddEvaluation"
+                # checks if our bet is the same as "Even"
             else
                 echo -e " [-] the number is Odd"
-                exit
+                evenOddEvaluation="Odd"
+                checkBet "$even_odd" "$initial_bet" "$evenOddEvaluation"
+                # checks if our bet is the same as "Odd"
+
             fi
 
         sleep 0.4
